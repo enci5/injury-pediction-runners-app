@@ -10,12 +10,12 @@ const AuthPage = () => {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
+    <div >
       <h1>{isLogin ? 'Welcome Back' : 'Create an Account'}</h1>
       
       {isLogin ? <LoginForm /> : <SignupForm />}
 
-      <button onClick={toggleMode} style={{ marginTop: '1rem' }}>
+      <button onClick={toggleMode}>
         {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
       </button>
     </div>
