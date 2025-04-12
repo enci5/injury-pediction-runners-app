@@ -8,7 +8,7 @@ mongoose.connect(DB).then(()=>console.log('connected to db'))
 .catch((err) => console.error("MongoDB connection error:", err))
 
 
-app.use('/api/auth', authRouter);
+app.use('/api', authRouter);
 app.use(express.json())
 
-app.listen(3000, ()=>console.log('listening on port 3000'))
+app.listen(5000, ()=>console.log('listening on port 3000'))
