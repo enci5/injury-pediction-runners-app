@@ -1,0 +1,18 @@
+{
+    "l2": 0.0015420379570963236,
+    "n_lstm_layers": 3,
+    "lstm_units_0": 150,
+    "recurrent_dropout": 0.2,
+    "dropout_0": 0.2,
+    "lstm_units_1": 150,
+    "dropout_1": 0.1,
+    "lstm_units_2": 200,
+    "dropout_2": 0.0,
+    "learning_rate": 5.547776048785642e-06,
+    "lstm_units_3": 200,
+    "dropout_3": 0.0,
+    "lstm_units_4": 100,
+    "dropout_4": 0.1,
+    "lstm_units_5": 100,
+    "dropout_5": 0.0
+}
