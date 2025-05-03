@@ -1,11 +1,11 @@
 // src/services/authService.js
 
-export const loginUser = async ({ email, password }) => {
+export const loginUser = async ({ username, password }) => {
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch('http://localhost:8000/api/auth/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
       const data = await res.json();
       return { success: res.ok, data };
@@ -14,12 +14,12 @@ export const loginUser = async ({ email, password }) => {
     }
   };
   
-  export const signupUser = async ({ email, password }) => {
+  export const signupUser = async ({username, email, password }) => {
     try {
-      const res = await fetch('http://localhost:5000/api/auth/signup', {
+      const res = await fetch('http://localhost:8000/api/auth/register/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({username, email, password }),
       });
       const data = await res.json();
       return { success: res.ok, data };

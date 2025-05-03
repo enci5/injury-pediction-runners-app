@@ -1,4 +1,4 @@
-# backend_app/views.py
+# prediction/views.py
 import os
 import numpy as np
 import tensorflow as tf

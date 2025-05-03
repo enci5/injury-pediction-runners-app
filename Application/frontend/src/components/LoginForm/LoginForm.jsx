@@ -2,23 +2,24 @@ import { useState } from 'react';
 import { loginUser } from '../../services/authService';
 
 const LoginForm = () => {
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const { success, data } = await loginUser({ email, password });
+    const { success, data } = await loginUser({ username, password });
     setMessage(data.message || (success ? 'Login successful!' : 'Login failed.'));
   };
 
   return (
     <form onSubmit={handleLogin}>
       <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        type="string"
+        placeholder="username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
         required
       />
       <input

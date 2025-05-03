@@ -3,6 +3,7 @@ import { signupUser } from '../../services/authService';
 
 const SignupForm = () => {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [message, setMessage] = useState('');
@@ -15,12 +16,18 @@ const SignupForm = () => {
       return;
     }
 
-    const { success, data } = await signupUser({ email, password });
+    const { success, data } = await signupUser({username, email, password });
     setMessage(data.message || (success ? 'Signup successful!' : 'Signup failed.'));
   };
 
   return (
     <form onSubmit={handleSignup}>
+      <input
+        type="string"
+        placeholder='Username'
+        value={username}
+        onChange={(e)=>setUsername(e.target.value)}
+      />
       <input
         type="email"
         placeholder="Email"
