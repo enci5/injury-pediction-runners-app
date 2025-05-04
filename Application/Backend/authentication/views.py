@@ -9,9 +9,7 @@ def register_view(request):
     if serialiser.is_valid():
         serialiser.save()
         return Response({'message': 'User created successfully'}, status=status.HTTP_201_CREATED)
-    
-    print(serialiser.errors)
+
     return Response(serialiser.errors, status=status.HTTP_400_BAD_REQUEST)
 
-def logout(request):
-    return ''
+# logout handled by frontend, only need to delete tokens and redirect page

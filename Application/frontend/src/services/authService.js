@@ -1,5 +1,4 @@
 // src/services/authService.js
-
 export const loginUser = async ({ username, password }) => {
     try {
       const res = await fetch('http://localhost:8000/api/auth/login/', {
@@ -7,8 +6,20 @@ export const loginUser = async ({ username, password }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
+
       const data = await res.json();
+
+      if(!res.ok){
+        return {
+          success: false,
+          message: data.detail || "Login failed",
+          data,
+        };
+      }
+      localStorage.setItem('access', data.access);
+      localStorage.setItem('refresh', data.refresh);  
       return { success: res.ok, data };
+
     } catch (err) {
       return { success: false, data: { message: 'Network error' } };
     }
@@ -28,3 +39,8 @@ export const loginUser = async ({ username, password }) => {
     }
   };
   
+  export const logout = (navigate)=>{
+    localStorage.removeItem('access')
+    localStorage.removeItem('refresh')
+    navigate('/auth')
+  }

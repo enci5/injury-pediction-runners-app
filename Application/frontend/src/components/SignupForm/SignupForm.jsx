@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { signupUser } from '../../services/authService';
+import './SignupForm.css'
 
 const SignupForm = () => {
   const [email, setEmail] = useState('');
@@ -17,11 +18,21 @@ const SignupForm = () => {
     }
 
     const { success, data } = await signupUser({username, email, password });
-    setMessage(data.message || (success ? 'Signup successful!' : 'Signup failed.'));
+    if(!success){
+      //if error then return the error message from backedn
+      const firstError = 
+        typeof data ==='object'
+        // Grab first error message from object
+          ? Object.values(data)[0]?.[0] || 'Signup failed'
+          : 'Signup failed'
+      setMessage(firstError)
+      return
+    }
+    setMessage('Signup successful')
   };
 
   return (
-    <form onSubmit={handleSignup}>
+    <form className='signup-form' onSubmit={handleSignup}>
       <input
         type="string"
         placeholder='Username'

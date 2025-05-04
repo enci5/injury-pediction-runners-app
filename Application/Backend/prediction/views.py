@@ -21,7 +21,7 @@ with open(THRESH_PATH, 'r') as f:
     BEST_THRESHOLD = float(f.read())
 
 def predict_injury(request):
-    # 🔢 Dummy input: shape (1, 7, 70)
+    # Dummy input: shape (1, 7, 70)
     X_input = np.random.rand(1, 7, 70).astype(np.float32)
     
     # 4) Build a tf.constant with the correct input key

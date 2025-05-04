@@ -1,0 +1,123 @@
+/* Header.css */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: white; /* Updated to match light theme */
+    color: #222;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+    box-sizing: border-box;
+    height: 100px;
+    line-height: 1;
+  }
+  
+  .nav-list {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-link {
+    color: #27ae60; /* Primary green accent */
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+  }
+  
+  .nav-link:hover {
+    background-color: #eafaf1; /* subtle green hover bg */
+    color: #219653; /* darker green on hover */
+  }
+  
+  .nav-button {
+    background: none;
+    border: none;
+    color: #27ae60;
+    font: inherit;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+    display: inline-block;
+  }
+  
+  .nav-button:hover {
+    background-color: #eafaf1;
+    color: #219653;
+  }
+
+  .profile-dropdown {
+    position: relative;
+  }
+  
+  .profile-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    list-style: none;
+    padding: 0.5rem 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 140px;
+    z-index: 1001;
+  }
+  
+  .dropdown-menu li {
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+  
+  .dropdown-menu li:hover {
+    background-color: #f4f4f4;
+  }
+  
+  .dropdown-menu a,
+  .dropdown-menu button {
+    all: unset;
+    display: block;
+    width: 100%;
+    color: #222;
+    cursor: pointer;
+    font-weight: 500;
+    padding: 0;
+  }
+  
+  .dropdown-menu a:hover,
+  .dropdown-menu button:hover {
+    color: #27ae60;
+  }
+
+  .logo-link {
+    color: inherit;           /* Inherits h1 color */
+    text-decoration: none;    /* Removes underline */
+    font-weight: inherit;     /* Keeps heading weight */
+    font-size: inherit;       /* Keeps h1 size */
+    transition: none;
+  }
+
+  .logo-link:hover {
+    text-decoration: none;
+    color: inherit;
+  }

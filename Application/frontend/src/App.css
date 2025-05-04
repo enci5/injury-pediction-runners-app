@@ -5,6 +5,11 @@
   text-align: center;
 }
 
+.main-content {
+  padding-top: 100px; /* padding for header */
+  min-height: 100vh;
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -39,4 +44,8 @@
 
 .read-the-docs {
   color: #888;
+}
+
+.main-content {
+  padding-top: 80px;
 }
