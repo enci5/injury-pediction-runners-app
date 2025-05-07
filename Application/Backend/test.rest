@@ -16,3 +16,6 @@ content-type: application/json
     "email": "sample@s.com",
     "password": "abcde"
 }
+
+###
+GET http://localhost:8000/api/strava/weekly-distance/?token=f8eb28fef8990c6d1da94097c3f2a500afd7154b
