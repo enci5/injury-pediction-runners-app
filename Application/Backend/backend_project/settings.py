@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'prediction',
     'authentication',
     'oauth',
-    ''
+    'training',
 ]
 
 MIDDLEWARE = [
@@ -95,6 +95,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
 }
 
 
@@ -143,3 +146,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STRAVA_CLIENT_ID = '158117'
 STRAVA_CLIENT_SECRET = '0982fb2a7cc56e67b97c2619eb8db4c3a43bc59f'
 STRAVA_REDIRECT_URI = 'http://localhost:8000/api/strava/callback/'
+
+CORS_ALLOWED_CREDENTIALS = True

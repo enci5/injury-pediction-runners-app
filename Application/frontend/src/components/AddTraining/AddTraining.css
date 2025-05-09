@@ -1,0 +1,103 @@
+.modal-backdrop {
+    position: fixed;
+    top: 100px;  /* Adjust based on your header height */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    z-index: 9999;
+    padding: 120px;
+}
+
+.modal {
+    background-color: #ffffff;
+    padding: 30px 40px;
+    border-radius: 5px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 70vh;
+    box-shadow: 0 15px 30px rgb(33, 33, 33);
+    overflow-y: auto;
+    position: relative;
+    margin: 0 auto;
+    z-index: 10000;
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+}
+
+.add-training-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+}
+
+.add-training-form label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.add-training-form input[type="number"],
+.add-training-form input[type="date"] {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.add-training-form input[type="number"]:focus,
+.add-training-form input[type="date"]:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 8px rgba(40, 167, 69, 0.2);
+}
+
+.add-training-form button {
+    grid-column: span 2;
+    background-color: #28a745;
+    color: #fff;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+}
+
+.add-training-form button:hover {
+    background-color: #218838;
+}
+
+.checkbox-container {
+    grid-column: span 2;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #333;
+}

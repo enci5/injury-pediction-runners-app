@@ -1,0 +1,81 @@
+.calendar-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.react-calendar {
+    width: 100%;
+    border: none;
+    font-family: Arial, sans-serif;
+    border-radius: 15px;
+}
+
+.react-calendar__tile {
+    background-color: #f9f9f9;
+    color: #333;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.react-calendar__tile:enabled:hover {
+    background-color: #eee;
+}
+
+.react-calendar__tile--now {
+    border: 2px solid #000000 !important;
+    background-color: #fff !important;
+    color: #333 !important;
+    font-weight: bold;
+    border-radius: 8px;
+}
+
+.react-calendar__tile--active {
+    background-color: inherit !important;
+    color: inherit !important;
+}
+
+.highlight {
+    background-color: #007bff !important;
+    color: #fff !important;
+    border-radius: 8px;
+}
+
+/* Highlighted Training Days */
+.highlight {
+    background-color: #d8f8df !important;
+    color: #333 !important;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.react-calendar__navigation {
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    padding: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+.react-calendar__navigation button {
+    background: none;
+    border: none;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+.react-calendar__navigation button:hover {
+    background-color: #ddd;
+}
+
+.react-calendar__month-view__weekdays {
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+}
