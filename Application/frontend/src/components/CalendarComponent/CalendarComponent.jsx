@@ -5,49 +5,51 @@ import './CalendarComponent.css';
 import { fetchTrainingDays } from '../../services/trainingService';
 
 const CalendarComponent = () => {
-    const [highlightedDates, setHighlightedDates] = useState([]);
+  const [highlightedDates, setHighlightedDates] = useState([]);
 
-    useEffect(() => {
-        const loadTrainingDays = async () => {
-            const dates = await fetchTrainingDays();
-            setHighlightedDates(dates);
-        };
+  useEffect(() => {
+    fetchTrainingDays().then(days => {
+      // turn each ISO-string into a real Date at midnight rather than toISOString
+      setHighlightedDates(
+        days.map(d => ({
+          date: new Date(d.date + 'T00:00:00'),
+          nr_sessions: d.nr_sessions,
+        }))
+      );
+    });
+  }, []);
 
-        loadTrainingDays();
-    }, []);
+  const isSameDay = (a, b) =>
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate();
 
-    const isSameDay = (date1, date2) => {
-        const d1 = date1.toISOString().split("T")[0];
-        const d2 = date2.toISOString().split("T")[0];
-        return d1 === d2;
-    };
+  const tileClassName = ({ date, view }) => {
+    if (view !== 'month') return null;
+    return highlightedDates.some(d => isSameDay(d.date, date))
+      ? 'highlight'
+      : null;
+  };
 
-    const tileClassName = ({ date, view }) => {
-        if (view === 'month') {
-            if (highlightedDates.some(d => isSameDay(new Date(d.date), date))) {
-                return 'highlight';
-            }
-        }
-    };
+  const tileContent = ({ date, view }) => {
+    if (view !== 'month') return null;
+    const td = highlightedDates.find(d => isSameDay(d.date, date));
+    return td
+      ? <div className="session-dot" title={`# sessions: ${td.nr_sessions}`} />
+      : null;
+  };
 
-    const tileContent = ({ date, view }) => {
-        if (view === 'month') {
-            const trainingDay = highlightedDates.find(d => isSameDay(new Date(d.date), date));
-            if (trainingDay) {
-                return <div title={`Number of Sessions: ${trainingDay.nr_sessions}`}></div>;
-            }
-        }
-    };
-
-    return (
-        <div className="calendar-container">
-            <Calendar
-                tileClassName={tileClassName}
-                tileContent={tileContent}
-                locale="en-US"
-            />
-        </div>
-    );
+  return (
+    <div className="calendar-container">
+      <Calendar
+        locale="en-GB"           // UK formatting
+        tileClassName={tileClassName}
+        tileContent={tileContent}
+        maxDetail="month"
+        minDetail="month"
+      />
+    </div>
+  );
 };
 
 export default CalendarComponent;

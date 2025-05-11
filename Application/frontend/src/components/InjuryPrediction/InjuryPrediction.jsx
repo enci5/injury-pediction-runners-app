@@ -11,7 +11,7 @@ const InjuryPrediction = () => {
     useEffect(() => {
         const fetchPrediction = async () => {
             try {
-                const res = await fetchWithAuth("http://localhost:8000/api/predict");
+                const res = await fetchWithAuth("http://localhost:8000/api/predict/");
                 const data = await res.json();
                 setProbability(data.probability * 100);
                 setRiskLevel(data.injury_risk ? "High" : "Low");

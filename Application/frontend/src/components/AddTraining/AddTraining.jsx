@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { refreshToken } from '../../utils/refreshToken';
+import { fetchWithAuth } from '../../services/fetchWithAuth';
 import './AddTraining.css';
 
 const AddTrainingDay = ({ onClose }) => {
@@ -26,91 +26,46 @@ const AddTrainingDay = ({ onClose }) => {
     };
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    // Check if the date is in the future
-    const today = new Date().toISOString().split("T")[0];
-    if (formData.date > today) {
-        alert("Date cannot be in the future!");
-        return;
-    }
-
-    let token = localStorage.getItem('access');
-    if (!token) {
-        token = await refreshToken();  // Attempt to refresh the token
-    }
-
-    if (!token) {
-        alert("Could not authenticate. Please log in again.");
-        return;
-    }
-
-    try {
-        const res = await fetch('http://localhost:8000/api/training/add/', {
-            method: 'POST',
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-        });
-
-        if (res.status === 401) {
-            token = await refreshToken();
-            if (token) {
-                const retryRes = await fetch('http://localhost:8000/api/training/add/', {
-                    method: 'POST',
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    }, 
-                    body: JSON.stringify(formData),
-                });
-
-                if (retryRes.ok) {
-                    alert("Training day added successfully!");
-                    setFormData({
-                        date: '',
-                        nr_sessions: 0,
-                        total_km: 0,
-                        km_z3_4: 0,
-                        km_z5_t1_t2: 0,
-                        km_sprinting: 0,
-                        strength_training: false,
-                        hours_alternative: 0,
-                        perceived_exertion: -0.01,
-                        perceived_training_success: -0.01,
-                        perceived_recovery: -0.01,
-                    });
-                    onClose();
-                    return;
-                }
-            }
-        } else if (res.ok) {
-            alert("Training day added successfully!");
-            setFormData({
-                date: '',
-                nr_sessions: 0,
-                total_km: 0,
-                km_z3_4: 0,
-                km_z5_t1_t2: 0,
-                km_sprinting: 0,
-                strength_training: false,
-                hours_alternative: 0,
-                perceived_exertion: -0.01,
-                perceived_training_success: -0.01,
-                perceived_recovery: -0.01,
-            });
-            onClose();
-        } else {
-            const errorData = await res.json();
-            alert(`Failed to add training day: ${errorData.detail || 'Unknown error'}`);
+        // Check if the date is in the future
+        const today = new Date().toISOString().split("T")[0];
+        if (formData.date > today) {
+            alert("Date cannot be in the future!");
+            return;
         }
-    } catch (err) {
-        console.error("Network error:", err);
-        alert("Failed to add training day. Please try again later.");
-    }
-};
+
+        try {
+            const res = await fetchWithAuth('http://localhost:8000/api/training/add/', {
+                method: 'POST',
+                body: JSON.stringify(formData),
+            });
+
+            if (res.ok) {
+                alert("Training day added successfully!");
+                setFormData({
+                    date: '',
+                    nr_sessions: 0,
+                    total_km: 0,
+                    km_z3_4: 0,
+                    km_z5_t1_t2: 0,
+                    km_sprinting: 0,
+                    strength_training: false,
+                    hours_alternative: 0,
+                    perceived_exertion: -0.01,
+                    perceived_training_success: -0.01,
+                    perceived_recovery: -0.01,
+                });
+                onClose();
+            } else {
+                const errorData = await res.json();
+                alert(`Failed to add training day: ${errorData.detail || 'Unknown error'}`);
+            }
+        } catch (err) {
+            console.error("Network error:", err);
+            alert("Failed to add training day. Please try again later.");
+        }
+    };
 
 return (
     <>
@@ -118,7 +73,7 @@ return (
             <h2 className="modal-title">Add Training</h2>
         </div>
 
-        <form className="add-training-form" onSubmit={handleChange}>
+        <form className="add-training-form" onSubmit={handleSubmit}>
             <label>Date</label>
             <input type="date" name="date" value={formData.date} onChange={handleChange} required max={new Date().toISOString().split("T")[0]} />
 

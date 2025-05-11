@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import requests
 from django.utils import timezone
+from collections import defaultdict
 
 def get_total_km(request):
     access_token = request.user.stravaprofile.access_token
@@ -42,36 +43,81 @@ def get_recent_sessions(request):
 
     return JsonResponse({'nr_sessions': sessions_count})
 
-@login_required
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def get_training_summary(request):
+    # 1. Pull the recent activities
     access_token = request.user.stravaprofile.access_token
     after = int((now() - timedelta(days=7)).timestamp())
     url = 'https://www.strava.com/api/v3/athlete/activities'
     headers = {'Authorization': f'Bearer {access_token}'}
-    params = {'after': after, 'per_page': 100}  # Adjust per_page as needed
+    params = {'after': after, 'per_page': 200}
 
-    response = requests.get(url, headers=headers, params=params)
-    activities = response.json()
+    resp = requests.get(url, headers=headers, params=params)
+    activities = resp.json()
 
-    # Process activities into TrainingDay entries
-    for activity in activities:
-        if activity['type'] != 'Run':
-            continue
+    # 2. bucket runs by local date
+    daily = defaultdict(lambda: {
+        'nr_sessions':   0,
+        'total_km':      0.0,
+        'km_z3_4':       0.0,
+        'km_z5_t1_t2':   0.0,
+        'km_sprinting':  0.0,
+        'strength_training': False,
+        'hours_alternative': 0.0,
+    })
 
-        date = activity['start_date_local'].split('T')[0]  # Extract just the date
+    for act in activities:
+        # iso-date string “YYYY-MM-DD”
+        day = act['start_date_local'][:10]
+        d = daily[day]
 
-        # Update or create the TrainingDay
+        # Check if this is a strength training activity
+        if act['type'] in ("WeightTraining", "Workout", "Crossfit"):
+            d['strength_training'] = True
+            continue  # don't count as a run
+
+        # Check for alternative training (non-run, non-ride, non-swim)
+        if act['type'] not in ("Run", "Ride", "Swim"):
+            d['hours_alternative'] += act['moving_time'] / 3600.0
+            continue  # don't count as a run
+
+        # If this is a run, count it
+        if act.get('type') == 'Run':
+            d['nr_sessions']  += 1
+            d['total_km']     += act['distance'] / 1000.0
+
+            # 3. fetch laps to get pace_zones
+            laps_url = f'https://www.strava.com/api/v3/activities/{act["id"]}/laps'
+            laps = requests.get(laps_url, headers=headers).json()
+
+            # find this run’s top pace-zone for “sprinting”
+            zones = [lap.get('pace_zone', 0) for lap in laps if lap.get('pace_zone') is not None]
+            top_zone = max(zones) if zones else 0
+
+            for lap in laps:
+                dist_km = lap['distance'] / 1000.0
+                pz = lap.get('pace_zone', 0)
+
+                if pz in (3, 4):
+                    d['km_z3_4'] += dist_km
+                if pz >= 5:
+                    d['km_z5_t1_t2'] += dist_km
+                if pz == top_zone:
+                    d['km_sprinting'] += dist_km
+
+    # 4. write out one TrainingDay per date
+    for date_str, metrics in daily.items():
         TrainingDay.objects.update_or_create(
             user=request.user,
-            date=date,
-            defaults={
-                'nr_sessions': 1,  # Single session per activity
-                'total_km': activity['distance'] / 1000,
-                # Add more processing for zones, perceived effort, etc. later
-            }
+            date=date_str,
+            defaults=metrics
         )
 
-    return JsonResponse({'message': 'Training summaries updated successfully'})
+    return JsonResponse({
+        'message': 'Training summaries updated',
+        'days_processed': len(daily)
+    })
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

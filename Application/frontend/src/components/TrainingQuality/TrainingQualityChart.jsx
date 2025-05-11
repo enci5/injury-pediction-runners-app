@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } fro
 import { fetchTrainingQuality } from '../../services/trainingService';
 import { addDays, format, subDays } from 'date-fns';
 
-const TrainingQualityChart = () => {
+const TrainingQualityChart = ({ dataUpdated }) => {
     const [data, setData] = useState([]);
 
     useEffect(() => {
@@ -31,7 +31,7 @@ const TrainingQualityChart = () => {
         };
 
         loadData();
-    }, []);
+    }, [dataUpdated]);
 
     return (
         <div className="chart-container">

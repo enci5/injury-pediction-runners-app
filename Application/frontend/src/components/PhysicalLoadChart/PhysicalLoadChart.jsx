@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } fro
 import { fetchPhysicalLoad } from '../../services/trainingService';
 import { addDays, format, subDays } from 'date-fns';
 
-const PhysicalLoadChart = () => {
+const PhysicalLoadChart = ({ dataUpdated }) => {
     const [data, setData] = useState([]);
 
     useEffect(() => {
@@ -32,7 +32,7 @@ const PhysicalLoadChart = () => {
         };
 
         loadData();
-    }, []);
+    }, [dataUpdated]);
 
     return (
         <div className="chart-container">
