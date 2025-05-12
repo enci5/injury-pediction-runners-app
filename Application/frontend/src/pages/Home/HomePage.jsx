@@ -10,6 +10,8 @@ import InjuryPrediction      from '../../components/InjuryPrediction/InjuryPredi
 import { fetchWithAuth }     from '../../services/fetchWithAuth.js'
 import './HomePage.css'
 
+const token = localStorage.getItem('access')
+
 const HomePage = () => {
   const [stravaConnected, setStravaConnected] = useState(false)
   const [dataUpdated, setDataUpdated]         = useState(false)
@@ -19,7 +21,6 @@ const HomePage = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const token = localStorage.getItem('access')
     if (!token) { navigate('/auth'); return }
 
     if (localStorage.getItem('stravaConnected') === 'true') {
@@ -35,10 +36,19 @@ const HomePage = () => {
 
   const fetchSummary = async () => {
     try {
-      await fetchWithAuth('http://localhost:8000/api/training/summary/', { method: 'GET' })
+      await fetchWithAuth('http://localhost:8000/api/training/summary/', 
+        { 
+          method: 'GET',
+          headers: {
+                  "Authorization": `Bearer ${token}`,
+                  "Content-Type": "application/json",
+              },
+           })
       setDataUpdated(u => !u)
+      alert('Training data synced!')
     } catch (e) {
       console.error(e)
+      alert(`Sync failed: ${e.message}`)
     }
   }
 
@@ -68,7 +78,7 @@ const HomePage = () => {
 
         <div className="dashboard-card">
           <h2>Injury Risk Visualisation</h2>
-          <InjuryPrediction/>
+          <InjuryPrediction dataUpdated={dataUpdated}/>
         </div>
 
         <div className="dashboard-actions">

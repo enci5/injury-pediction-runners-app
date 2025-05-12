@@ -4,7 +4,7 @@ import 'react-circular-progressbar/dist/styles.css';
 import { fetchWithAuth } from '../../services/fetchWithAuth';
 import './InjuryPrediction.css'
 
-const InjuryPrediction = () => {
+const InjuryPrediction = ({dataUpdated}) => {
     const [probability, setProbability] = useState(0);
     const [riskLevel, setRiskLevel] = useState("Low");
 
@@ -21,7 +21,7 @@ const InjuryPrediction = () => {
         };
 
         fetchPrediction();
-    }, []);
+    }, [dataUpdated]);
 
     return (
         <div className="injury-prediction">

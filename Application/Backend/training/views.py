@@ -1,4 +1,5 @@
 import json
+from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.utils.timezone import now, timedelta
@@ -13,16 +14,14 @@ from .models import TrainingDay
 from .serialiser import TrainingDaySerialiser
 from rest_framework import status
 
+from .models import TrainingDay
+
 HR_ZONES = {
-    1: 0.60,
-    2: 0.70,
-    3: 0.80,
-    4: 0.90,
-    5: 1.00,
+    1: 0.60, 2: 0.70, 3: 0.80,
+    4: 0.90, 5: 1.00,
 }
 
 def hr_zone_for(hr, max_hr):
-    """Return the zone index (1–5) for a given heart‐rate and max_hr."""
     if not max_hr or hr <= 0:
         return 1
     pct = hr / max_hr
@@ -38,16 +37,54 @@ def training_summary(request):
     profile = request.user.stravaprofile
     max_hr  = getattr(profile, 'max_heartrate', 200)
 
-    token   = profile.access_token
-    after   = int((now() - timedelta(days=7)).timestamp())
-    hdrs    = {'Authorization': f'Bearer {token}'}
-    params  = {'after': after, 'per_page': 200}
+    # 1) ensure we have a fresh access_token
+    token = profile.access_token
+    def fetch_activities(tok):
+        return requests.get(
+            'https://www.strava.com/api/v3/athlete/activities',
+            headers={'Authorization': f'Bearer {tok}'},
+            params={'after': int((now() - timedelta(days=7)).timestamp()), 'per_page': 200}
+        )
 
-    activities = requests.get(
-        'https://www.strava.com/api/v3/athlete/activities',
-        headers=hdrs, params=params
-    ).json()
+    resp = fetch_activities(token)
 
+    # 2) if Strava says 401, auto‐refresh
+    if resp.status_code == 401 and hasattr(profile, 'refresh_token'):
+        refresh_resp = requests.post(
+            'https://www.strava.com/oauth/token',
+            data={
+                'client_id':     settings.STRAVA_CLIENT_ID,
+                'client_secret': settings.STRAVA_CLIENT_SECRET,
+                'grant_type':    'refresh_token',
+                'refresh_token': profile.refresh_token,
+            }
+        )
+        if refresh_resp.status_code == 200:
+            tokj = refresh_resp.json()
+            # update profile
+            profile.access_token  = tokj['access_token']
+            profile.refresh_token = tokj['refresh_token']
+            profile.expires_at    = now() + timedelta(seconds=tokj['expires_in'])
+            profile.save()
+            token = tokj['access_token']
+            resp = fetch_activities(token)
+
+    # 3) any other non-200 → error out
+    if resp.status_code != 200:
+        details = {}
+        try:
+            details = resp.json()
+        except ValueError:
+            details = resp.text
+        return Response({
+            'error':  'Strava API request failed',
+            'status': resp.status_code,
+            'details': details
+        }, status=resp.status_code)
+
+    activities = resp.json()
+
+    # 4) aggregate per‐day
     daily = defaultdict(lambda: {
         'nr_sessions':       0,
         'total_km':          0.0,
@@ -61,75 +98,72 @@ def training_summary(request):
     for act in activities:
         day = act['start_date_local'][:10]
         d   = daily[day]
+        t   = act.get('type')
 
-        if act['type'] in ("WeightTraining","Workout","Crossfit"):
+        if t in ("WeightTraining","Workout","Crossfit"):
             d['strength_training'] = True
             continue
-        if act['type'] not in ("Run","Ride","Swim"):
-            d['hours_alternative'] += act['moving_time'] / 3600.0
+        if t not in ("Run","Ride","Swim"):
+            d['hours_alternative'] += act.get('moving_time', 0) / 3600.0
             continue
 
-        if act['type'] == "Run":
+        # running / riding / swimming
+        if t == "Run":
             d['nr_sessions'] += 1
-            d['total_km']    += act['distance'] / 1000.0
+            d['total_km']    += act.get('distance', 0) / 1000.0
 
-            # --- 1) Try HR‐stream bucketing
+            # HR‐stream
             st = requests.get(
                 f'https://www.strava.com/api/v3/activities/{act["id"]}/streams',
-                headers=hdrs,
-                params={'keys': 'heartrate,distance', 'key_by_type': 'true'}
+                headers={'Authorization': f'Bearer {token}'},
+                params={'keys':'heartrate,distance','key_by_type':'true'}
             ).json()
-            hr_data   = st.get('heartrate', {}).get('data', [])
-            dist_data = st.get('distance',  {}).get('data', [])
+            hr   = st.get('heartrate', {}).get('data', [])
+            dist = st.get('distance',  {}).get('data', [])
+            used = False
+            if len(hr)==len(dist)>=2:
+                used = True
+                for i in range(1, len(dist)):
+                    dk = (dist[i] - dist[i-1]) / 1000.0
+                    z  = hr_zone_for(hr[i] or 0, max_hr)
+                    if z in (3,4): d['km_z3_4']     += dk
+                    if z >=5:      d['km_z5_t1_t2'] += dk; d['km_sprinting'] += dk
 
-            used_hr = False
-            if len(hr_data)==len(dist_data)>=2:
-                used_hr = True
-                for i in range(1, len(dist_data)):
-                    dk = (dist_data[i] - dist_data[i-1]) / 1000.0
-                    z  = hr_zone_for(hr_data[i] or 0, max_hr)
-                    if z in (3,4):
-                        d['km_z3_4']     += dk
-                    if z >= 5:
-                        d['km_z5_t1_t2'] += dk
-                        d['km_sprinting']+= dk
-
-            # --- 2) FALLBACK to lap‐based pacezones if HR gave nothing
-            if not used_hr or (d['km_z3_4']==0 and d['km_z5_t1_t2']==0 and d['km_sprinting']==0):
+            # fallback to laps
+            if not used and not any((d['km_z3_4'],d['km_z5_t1_t2'],d['km_sprinting'])):
                 laps = requests.get(
                     f'https://www.strava.com/api/v3/activities/{act["id"]}/laps',
-                    headers=hdrs
+                    headers={'Authorization':f'Bearer {token}'}
                 ).json()
-                pzs  = [lap.get('pace_zone',0) for lap in laps]
+                pzs = [lap.get('pace_zone', 0) for lap in laps]
                 top = max(pzs) if pzs else 0
                 for lap in laps:
-                    km = lap['distance'] / 1000.0
+                    km = lap.get('distance',0)/1000.0
                     pz = lap.get('pace_zone',0)
-                    if pz in (3,4):        d['km_z3_4']      += km
-                    if pz >= 5:            d['km_z5_t1_t2']  += km
-                    if pz == top:          d['km_sprinting'] += km
+                    if pz in (3,4):      d['km_z3_4']     += km
+                    if pz >=5:           d['km_z5_t1_t2'] += km
+                    if pz == top:        d['km_sprinting']+= km
 
-    # Persist to DB
+    # 5) save to DB
     for date_str, m in daily.items():
         TrainingDay.objects.update_or_create(
             user=request.user,
             date=date_str,
             defaults={
                 'nr_sessions':       m['nr_sessions'],
-                'total_km':          round(m['total_km'], 2),
-                'km_z3_4':           round(m['km_z3_4'], 2),
-                'km_z5_t1_t2':       round(m['km_z5_t1_t2'], 2),
-                'km_sprinting':      round(m['km_sprinting'], 2),
+                'total_km':          round(m['total_km'],2),
+                'km_z3_4':           round(m['km_z3_4'],2),
+                'km_z5_t1_t2':       round(m['km_z5_t1_t2'],2),
+                'km_sprinting':      round(m['km_sprinting'],2),
                 'strength_training': m['strength_training'],
-                'hours_alternative': round(m['hours_alternative'], 2),
+                'hours_alternative': round(m['hours_alternative'],2),
             }
         )
 
-    # Return the last 7 days
-    seven_days_ago = now().date() - timedelta(days=7)
+    # 6) return last 7 days
+    cutoff = now().date() - timedelta(days=7)
     qs = TrainingDay.objects.filter(
-        user=request.user,
-        date__gte=seven_days_ago
+        user=request.user, date__gte=cutoff
     ).order_by('-date').values(
         'date','nr_sessions','total_km',
         'km_z3_4','km_z5_t1_t2','km_sprinting',
