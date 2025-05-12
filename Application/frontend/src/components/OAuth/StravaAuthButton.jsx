@@ -2,9 +2,9 @@ import { refreshToken } from '../../utils/refreshToken';
 
 const STRAVA_CLIENT_ID = '158117';
 const REDIRECT_URI = 'http://localhost:8000/api/strava/callback/';
-const SCOPE = 'read,activity:read';
+const SCOPE = 'read,activity:read_all';
 
-const StravaAuthButton = () => {
+const StravaAuthButton = ({className}) => {
   const handleClick = async () => {
     let token = localStorage.getItem('access');
 
@@ -30,7 +30,7 @@ const StravaAuthButton = () => {
     window.location.href = authUrl;
   };
 
-  return <button onClick={handleClick}>Connect with Strava</button>;
+  return <button className={className} onClick={handleClick}>Connect with Strava</button>;
 };
 
 export default StravaAuthButton;

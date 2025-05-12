@@ -1,34 +1,81 @@
-/* Dashboard Layout */
+/* Dashboard Container */
 .dashboard-container {
-    padding: 20px;
+    padding: 30px;
+    background-color: #f4f5f7;
 }
 
+/* Dashboard Grid */
 .dashboard-grid {
     display: grid;
     grid-template-columns: 2fr 1fr;
-    grid-template-rows: auto auto;
+    grid-template-rows: auto auto auto;
     gap: 20px;
     align-items: start;
+    grid-template-areas: 
+        "activity calendar"
+        "quality injury"
+        "actions actions";
+    max-width: 1200px;  /* Optional: limit max width for cleaner layout */
+    margin: 0 auto;
 }
 
+/* Grid Area Styles */
+.dashboard-card.activity {
+    grid-area: activity;
+}
 
+.dashboard-card.calendar {
+    grid-area: calendar;
+}
+
+.dashboard-card.quality {
+    grid-area: quality;
+}
+
+.dashboard-card.injury {
+    grid-area: injury;
+}
+
+/* Dashboard Card */
 .dashboard-card {
-    background-color: #f9f9f9;
+    background-color: #ffffff;
     border-radius: 15px;
     padding: 20px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
     margin-bottom: 20px;
+    min-height: 300px;
 }
 
+/* Large Dashboard Card */
 .dashboard-card.large {
     grid-column: span 1;
-    grid-row: span 1;
 }
 
+/* Full Width Dashboard Card */
 .dashboard-card.large.full-width {
     grid-column: span 2;
 }
 
+/* Right Column Cards */
+.right-column-card {
+    min-height: 300px;
+}
+
+/* Dashboard Actions */
+.dashboard-actions {
+    grid-area: actions;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+/* Placeholder for Charts */
 .placeholder {
     background-color: #ddd;
     height: 300px;
@@ -41,17 +88,7 @@
     text-align: center;
 }
 
-.dashboard-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    align-items: flex-start;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-}
-
+/* Action Buttons */
 .action-button {
     background-color: #28a745;
     color: #fff;
@@ -60,19 +97,35 @@
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.1s;
     width: 100%;
     text-align: center;
+    margin-bottom: 15px;
 }
 
+/* Connected Button */
 .action-button.connected {
     background-color: #007bff;
 }
 
-.action-button:hover {
-    background-color: #218838;
+/* Connected Button Hover */
+.action-button.connected:hover {
+    background-color: #d32f2f !important;
+    color: #fff !important;
 }
 
+/* Strava Button (When Not Connected) */
+.action-button.connect {
+    background-color: #5f6761 !important;
+}
+
+/* General Hover State */
+.action-button:hover {
+    background-color: #218838;
+    transform: scale(1.02);
+}
+
+/* Modal Styles */
 .modal-backdrop {
     position: fixed;
     top: 0;
@@ -107,4 +160,46 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* Error Text */
+.error-text {
+    color: #d32f2f;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* JSON Output */
+.json-output {
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    padding: 15px;
+    font-family: monospace;
+    font-size: 14px;
+    color: #333;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Button States */
+.action-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    color: #666;
+}
+
+.action-button.connect:hover {
+    background-color: #444 !important;
+    color: #fff !important;
+    transform: scale(1.02);
+}
+
+/* Title Styles */
+.dashboard-card h2 {
+    font-weight: bold;
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
 }

@@ -42,5 +42,6 @@ export const loginUser = async ({ username, password }) => {
   export const logout = (navigate)=>{
     localStorage.removeItem('access')
     localStorage.removeItem('refresh')
+    localStorage.removeItem('stravaConnected')
     navigate('/auth')
   }

@@ -4,7 +4,7 @@ import 'react-calendar/dist/Calendar.css';
 import './CalendarComponent.css';
 import { fetchTrainingDays } from '../../services/trainingService';
 
-const CalendarComponent = () => {
+const CalendarComponent = ({dataUpdated}) => {
   const [highlightedDates, setHighlightedDates] = useState([]);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ const CalendarComponent = () => {
         }))
       );
     });
-  }, []);
+  }, [dataUpdated]);
 
   const isSameDay = (a, b) =>
     a.getFullYear() === b.getFullYear() &&

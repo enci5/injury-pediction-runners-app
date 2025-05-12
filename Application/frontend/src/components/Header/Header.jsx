@@ -12,6 +12,10 @@ const Header = () => {
         logout(navigate)
     }
 
+    const handleProfile = ()=>{
+        navigate('/Profile')
+    }
+
     return (
         <header className="header">
           <h1><Link className="logo-link" to= "/">RunSafe</Link></h1>
@@ -25,7 +29,7 @@ const Header = () => {
                 />
                 {menuOpen && (
                   <ul className="dropdown-menu">
-                    <li><Link to="/profile">Profile</Link></li>
+                    <li><button onClick={handleProfile}>Profile</button></li>
                     <li><button onClick={handleLogout}>Logout</button></li>
                   </ul>
                 )}
