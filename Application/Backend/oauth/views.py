@@ -64,27 +64,3 @@ def strava_callback(request):
     )
 
     return redirect('http://localhost:5173/?strava=connected')
-
-def recent_running_distance(request):
-    access_token = request.GET.get('token')  
-    if not access_token:
-        return JsonResponse({"error": "Missing token"}, status=400)
-
-    # Get time 7 days ago in UNIX timestamp
-    after = int((now() - timedelta(days=7)).timestamp())
-
-    url = 'https://www.strava.com/api/v3/athlete/activities'
-    headers = {'Authorization': f'Bearer {access_token}'}
-    params = {'after': after, 'per_page': 100}
-
-    res = requests.get(url, headers=headers, params=params)
-    activities = res.json()
-
-    total_distance = sum(
-        act['distance'] for act in activities if act['type'] == 'Run'
-    )  # distance is in meters
-
-    return JsonResponse({
-        "runs_count": len([a for a in activities if a['type'] == 'Run']),
-        "total_km": round(total_distance / 1000, 2)
-    })

@@ -28,40 +28,6 @@ def hr_zone_for(hr, max_hr):
             return zone
     return 5
 
-def get_total_km(request):
-    access_token = request.user.stravaprofile.access_token
-    after = int((now() - timedelta(days=7)).timestamp())
-    url = 'https://www.strava.com/api/v3/athlete/activities'
-    headers = {'Authorization': f'Bearer {access_token}'}
-    params = {'after': after, 'per_page': 200}
-
-    response = requests.get(url, headers=headers, params=params)
-    activities = response.json()
-
-    # Sum total distance for all runs
-    total_distance = sum(a['distance'] for a in activities if a['type'] == 'Run')
-
-    # Convert meters to kilometers
-    total_km = round(total_distance / 1000, 2)
-
-    return JsonResponse({'total_km': total_km})
-
-def get_recent_sessions(request):
-    # Should have the user's Strava token saved
-    access_token = request.user.stravaprofile.access_token
-    after = int((now() - timedelta(days=7)).timestamp())
-    url = 'https://www.strava.com/api/v3/athlete/activities'
-    headers = {'Authorization': f'Bearer {access_token}'}
-    params = {'after': after, 'per_page': 200}  # Fetch up to 200 activities
-
-    response = requests.get(url, headers=headers, params=params)
-    activities = response.json()
-
-    # Count only "Run" activities
-    sessions_count = len([a for a in activities if a['type'] == 'Run'])
-
-    return JsonResponse({'nr_sessions': sessions_count})
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
