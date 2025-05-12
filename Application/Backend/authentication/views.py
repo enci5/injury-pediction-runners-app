@@ -19,3 +19,4 @@ def register_view(request):
 def verify_token(request):
     return Response({'valid': True})
 # logout handled by frontend, only need to delete tokens and redirect page
+

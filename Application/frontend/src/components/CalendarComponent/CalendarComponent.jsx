@@ -4,7 +4,7 @@ import 'react-calendar/dist/Calendar.css';
 import './CalendarComponent.css';
 import { fetchTrainingDays } from '../../services/trainingService';
 
-const CalendarComponent = ({dataUpdated}) => {
+const CalendarComponent = ({ dataUpdated, onDateSelect }) => {
   const [highlightedDates, setHighlightedDates] = useState([]);
 
   useEffect(() => {
@@ -45,6 +45,7 @@ const CalendarComponent = ({dataUpdated}) => {
         locale="en-GB"           // UK formatting
         tileClassName={tileClassName}
         tileContent={tileContent}
+        onClickDay={date => onDateSelect(date)}
         maxDetail="month"
         minDetail="month"
       />

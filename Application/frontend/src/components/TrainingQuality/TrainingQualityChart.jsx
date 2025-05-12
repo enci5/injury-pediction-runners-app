@@ -19,9 +19,9 @@ const TrainingQualityChart = ({ dataUpdated }) => {
                 // Find the training day, or use defaults if missing
                 const trainingDay = result.find(d => d.date === formattedDate) || {
                     date: formattedDate,
-                    perceived_exertion: -0.01,
-                    perceived_training_success: -0.01,
-                    perceived_recovery: -0.01,
+                    perceived_exertion: 0,
+                    perceived_training_success: 0,
+                    perceived_recovery: 0,
                 };
 
                 return trainingDay;
