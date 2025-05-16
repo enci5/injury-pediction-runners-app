@@ -79,7 +79,7 @@ def predict_injury(request):
         pad['date'] = pd.date_range(end=start - pd.Timedelta(days=1), periods=n)
         df = pd.concat([pad, df], ignore_index=True)
 
-    # 5.3) Cast to datetime
+    # 5.3) Now date column always exists—cast to datetime
     df['date'] = pd.to_datetime(df['date'])
 
     # 5.4) Add rolling / delta / ratio features

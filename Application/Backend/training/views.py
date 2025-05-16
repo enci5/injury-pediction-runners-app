@@ -236,3 +236,26 @@ def training_quality(request):
     # Convert QuerySet to list
     data = list(training_days)
     return JsonResponse(data, safe=False)
+
+@api_view(['GET','PUT'])
+@permission_classes([IsAuthenticated])
+def training_day_detail(request, date_str):
+    """
+    GET  /api/training/day/2025-05-12/    → returns the TrainingDay for that date
+    PUT  /api/training/day/2025-05-12/    → updates it with whatever fields are sent
+    """
+    try:
+        td = TrainingDay.objects.get(user=request.user, date=date_str)
+    except TrainingDay.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = TrainingDaySerialiser(td)
+        return Response(serializer.data)
+
+    # PUT
+    serializer = TrainingDaySerialiser(td, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
