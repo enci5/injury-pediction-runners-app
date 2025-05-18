@@ -94,6 +94,9 @@ const HomePage = () => {
           ) : (
             <StravaAuthButton className="action-button connect"/>
           )}
+            <button className="action-button" onClick={() => setShowAddModal(true)}>
+              Add Data
+            </button>
         </div>
       </div>
 

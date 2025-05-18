@@ -34,6 +34,7 @@ def hr_zone_for(hr, max_hr):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def training_summary(request):
+
     profile = request.user.stravaprofile
     max_hr  = getattr(profile, 'max_heartrate', 200)
 
@@ -82,6 +83,7 @@ def training_summary(request):
             'details': details
         }, status=resp.status_code)
 
+    # list of activities 
     activities = resp.json()
 
     # 4) aggregate per‐day
@@ -100,6 +102,7 @@ def training_summary(request):
         d   = daily[day]
         t   = act.get('type')
 
+        # set weight training if exists in activities list
         if t in ("WeightTraining","Workout","Crossfit"):
             d['strength_training'] = True
             continue
@@ -107,7 +110,8 @@ def training_summary(request):
             d['hours_alternative'] += act.get('moving_time', 0) / 3600.0
             continue
 
-        # running / riding / swimming
+        # running
+        # alternative training: riding / swimming, popular sports recorded through strava
         if t == "Run":
             d['nr_sessions'] += 1
             d['total_km']    += act.get('distance', 0) / 1000.0
@@ -202,19 +206,21 @@ def add_training_day(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def calendar(request):
+    user = request.user
     if request.method == 'GET':
 
-        training_days = list(TrainingDay.objects.values('date', 'nr_sessions'))
+        training_days = list(TrainingDay.objects.filter(user=user).values('date', 'nr_sessions'))
         return JsonResponse(training_days, safe=False)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def physical_load(request):
+    user = request.user
     today = timezone.now().date()
     last_week = today - timedelta(days=7)
 
     # Fetch data for the last 7 days
-    training_days = TrainingDay.objects.filter(date__range=(last_week, today)).values(
+    training_days = TrainingDay.objects.filter(user=user, date__range=(last_week, today)).values(
         'date', 'total_km', 'km_z3_4', 'km_z5_t1_t2', 'km_sprinting', 'nr_sessions'
     )
 
@@ -225,11 +231,12 @@ def physical_load(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def training_quality(request):
+    user = request.user
     today = timezone.now().date()
     last_week = today - timedelta(days=7)
 
     # Fetch data for the last 7 days
-    training_days = TrainingDay.objects.filter(date__range=(last_week, today)).values(
+    training_days = TrainingDay.objects.filter(user=user, date__range=(last_week, today)).values(
         'date', 'perceived_exertion', 'perceived_training_success', 'perceived_recovery'
     )
 
@@ -244,8 +251,10 @@ def training_day_detail(request, date_str):
     GET  /api/training/day/2025-05-12/    → returns the TrainingDay for that date
     PUT  /api/training/day/2025-05-12/    → updates it with whatever fields are sent
     """
+    user = request.user
+
     try:
-        td = TrainingDay.objects.get(user=request.user, date=date_str)
+        td = TrainingDay.objects.get(user=user, date=date_str)
     except TrainingDay.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 

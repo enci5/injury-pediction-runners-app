@@ -60,15 +60,21 @@ def add_temporal_features(df, window=7):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def predict_injury(request):
+    user = request.user
     today   = timezone.now().date()
     weekago = today - timezone.timedelta(days=7)
 
     # 5.1) Fetch last 7 days
     qs = TrainingDay.objects.filter(
-        user=request.user,
+        user=user,
         date__gt=weekago,
         date__lte=today
     ).order_by('date').values('date', *RAW_FEATURES)
+
+    # return 0 zero for if none exist
+    if not qs.exists():
+        return JsonResponse({'injury_risk': False, 'probability': 0.0})
+    
     df = pd.DataFrame(qs)
 
     # 5.2) Pad or convert date *after* building df
