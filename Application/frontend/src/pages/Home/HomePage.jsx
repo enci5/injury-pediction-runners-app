@@ -20,19 +20,25 @@ const HomePage = () => {
 
   const navigate = useNavigate()
 
-  useEffect(() => {
-    if (!token) { navigate('/auth'); return }
+useEffect(() => {
+    if (!token) {
+        navigate('/auth');
+        return;
+    }
+    const isStravaConnected = localStorage.getItem('stravaConnected') === 'true';
+    if (isStravaConnected !== stravaConnected) {
+        setStravaConnected(isStravaConnected);
+    }
+    const params = new URLSearchParams(window.location.search);
+    const stravaParam = params.get('strava');
 
-    if (localStorage.getItem('stravaConnected') === 'true') {
-      setStravaConnected(true)
+    if (stravaParam === 'connected') {
+        localStorage.setItem('stravaConnected', 'true');
+        setStravaConnected(true);
+        navigate('/', { replace: true });
     }
-    const params = new URLSearchParams(location.search)
-    if (params.get('strava') === 'connected') {
-      localStorage.setItem('stravaConnected','true')
-      setStravaConnected(true)
-      navigate('/', { replace: true })
-    }
-  }, [navigate, dataUpdated])
+}, [navigate, token]);
+
 
   const fetchSummary = async () => {
     try {
@@ -94,9 +100,6 @@ const HomePage = () => {
           ) : (
             <StravaAuthButton className="action-button connect"/>
           )}
-            <button className="action-button" onClick={() => setShowAddModal(true)}>
-              Add Data
-            </button>
         </div>
       </div>
 
