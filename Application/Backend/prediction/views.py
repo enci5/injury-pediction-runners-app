@@ -97,7 +97,7 @@ def predict_injury(request):
     # 5.6) Global z-score
     flat    = X_raw.reshape(-1, len(FEATURE_COLS))
     z       = (flat - GLOBAL_MEAN) / GLOBAL_STD
-    # (optionally clip / stretch here)
+    z = np.clip(z, -6, 6)
 
     # 5.7) Reshape for model
     X_input = z.reshape((1,7,len(FEATURE_COLS))).astype(np.float32)

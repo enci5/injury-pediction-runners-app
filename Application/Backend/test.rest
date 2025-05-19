@@ -19,3 +19,11 @@ content-type: application/json
 
 ###
 GET http://localhost:8000/api/strava/weekly-distance/?token=f8eb28fef8990c6d1da94097c3f2a500afd7154b
+###
+
+POST https://www.strava.com/oauth/deauthorize
+content-type: application/json
+
+{
+    "access_token": "f2c8ceef280657ded3f984a74844d71b959c80ab"
+}

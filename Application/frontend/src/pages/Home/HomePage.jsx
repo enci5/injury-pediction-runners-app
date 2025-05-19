@@ -21,23 +21,31 @@ const HomePage = () => {
   const navigate = useNavigate()
 
 useEffect(() => {
-    if (!token) {
+  
+    const accessToken = localStorage.getItem('access');
+    
+    // Redirect to /auth if token is missing
+    if (!accessToken) {
         navigate('/auth');
         return;
     }
-    const isStravaConnected = localStorage.getItem('stravaConnected') === 'true';
-    if (isStravaConnected !== stravaConnected) {
-        setStravaConnected(isStravaConnected);
-    }
-    const params = new URLSearchParams(window.location.search);
-    const stravaParam = params.get('strava');
 
-    if (stravaParam === 'connected') {
-        localStorage.setItem('stravaConnected', 'true');
+    // Check if Strava is connected
+    const isStravaConnected = localStorage.getItem('stravaConnected') === 'true';
+    if (!isStravaConnected) {
+        const params = new URLSearchParams(window.location.search);
+        const stravaParam = params.get('strava');
+
+        if (stravaParam === 'connected') {
+            localStorage.setItem('stravaConnected', 'true');
+            setStravaConnected(true);
+            navigate('/', { replace: true });
+        }
+    } else {
         setStravaConnected(true);
-        navigate('/', { replace: true });
     }
-}, [navigate, token]);
+}, [navigate, stravaConnected]);
+
 
 
   const fetchSummary = async () => {
