@@ -1,5 +1,6 @@
 // fetchWithAuth.js
-export async function fetchWithAuth(url, options = {}) {
+export async function fetchWithAuth(url: string, 
+    options: RequestInit = {}) {
     let access = localStorage.getItem("access");
   
     let headers = {
