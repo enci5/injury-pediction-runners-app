@@ -15,7 +15,7 @@ function App() {
         <Routes>
         <Route path='/auth' element={<AuthPage />} />
         <Route path='/'element={<HomePage/>}/>
-        <Route path='/profile' element={Profile}/>
+        <Route path='/profile' element={<Profile/>}/>
       </Routes>
       </div>
     </Router>
